@@ -1,5 +1,5 @@
 # fuel
-With this CLI Tool, Fuel Price list information is instantly retrieved by city group. Price List information is printed on the screen by Parse instantly from Petrolofisi.com.tr You can Get Price List of Diesel and Gasoline by 3 cites.
+With this CLI Tool, Fuel Price list information is instantly retrieved by city group. Price List information is printed on the screen by Parse instantly from Petrolofisi.com.tr You can Get Price List of Diesel and Gasoline by 3 cities.
 <br><br>
 &#x1F34E;<I>This is Petrolofisi crawler CLI. In every request, It parses Petrolofisi.com.tr If Petrolofisi.com.tr doesn't response, this service can't work.</I>
 
