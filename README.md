@@ -4,10 +4,14 @@ With this CLI Tool, Fuel Price list information is instantly retrieved by city g
 &#x1F34E;<I>This is Petrolofisi crawler CLI. In every request, It parses Petrolofisi.com.tr If Petrolofisi.com.tr doesn't response, this service can't work.</I>
 
 
-![NetflixGithub](https://user-images.githubusercontent.com/9459881/165043647-7e6bad74-623d-405e-8f36-676dd32caf58.png)<br>
+![FuelGithub](https://github.com/borakasmer/fuel/blob/main/fuel.gif)<br>
+
+<table><tr><td>:tv:</td><td><I>fuel</I></td></tr><tr><td></td><td><I>fuel -h</T></td></tr></table>
 
 <b>Default Command:</b> "fuel" </br></br>
 <b>Example Usage:</b>
+<b>Usage:</b>
+  fuel [flags]
 
 <b><u>How to install Fuel Cli:</u></b><br>
 
