@@ -15,6 +15,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	cityName string
+)
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "fuel",
@@ -53,6 +57,7 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().StringVarP(&cityName, "name", "n", "", "City Name")
 }
 
 func getFuel() {
@@ -62,9 +67,15 @@ func getFuel() {
 	tableHeaders = append(tableHeaders, "Yakıt Tipi")
 
 	var ExchangeList = make(map[string]string, 3)
-	ExchangeList["Istanbul"] = parser.IstanbulUrl
-	ExchangeList["Angara"] = parser.AnkaraUrl
-	ExchangeList["Izmir"] = parser.IzmirUrl
+	ExchangeList["ankara"] = parser.AnkaraUrl
+	ExchangeList["istanbul"] = parser.IstanbulUrl
+	ExchangeList["izmir"] = parser.IzmirUrl
+
+	_, found := ExchangeList[cityName]
+
+	if cityName != "" && !found {
+		ExchangeList[cityName] = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/" + cityName + "-akaryakit-fiyatlari"
+	}
 
 	resultList := make([]Model.FuelPrice, 0)
 
@@ -110,17 +121,45 @@ func getFuel() {
 	table.AppendBulk(tableRows)
 	//Set Table Color
 	if !isWindows() { //Windows için Renkli Tablo başlıkları gözükmüyor...
+		if len(ExchangeList) > 3 {
+			table.SetHeaderColor(
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgMagentaColor,
+				},
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgGreenColor,
+				},
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgYellowColor,
+				},
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgBlueColor,
+				},
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgRedColor,
+				},
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgMagentaColor,
+				})
+		} else {
+			table.SetHeaderColor(
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgMagentaColor,
+				},
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgGreenColor,
+				},
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgYellowColor,
+				},
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgBlueColor,
+				},
+				tablewriter.Colors{
+					tablewriter.Bold, tablewriter.BgRedColor,
+				})
+		}
 
-		table.SetHeaderColor(tablewriter.Colors{
-			tablewriter.Bold, tablewriter.BgMagentaColor},
-			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgGreenColor},
-			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgYellowColor},
-			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgBlueColor},
-			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgRedColor})
 	}
 	table.Render()
 }
