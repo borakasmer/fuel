@@ -37,9 +37,10 @@ var IstanbulUrl = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/istanbul-a
 var AnkaraUrl = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/ankara-akaryakit-fiyatlari"
 var IzmirUrl = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/izmir-akaryakit-fiyatlari"
 
-func ParseWeb(url string) (core.String, core.String) {
+func ParseWeb(url string) (core.String, core.String, core.String) {
 	var petrol = ""
 	var diesel = ""
+	var lpg = ""
 	client := &http.Client{Timeout: 30 * time.Second}
 	res, err := client.Get(url)
 	if err != nil {
@@ -55,10 +56,11 @@ func ParseWeb(url string) (core.String, core.String) {
 			data.Each(func(i int, s *goquery.Selection) {
 				petrol = s.Find(".data-cell:nth-child(2)").Text()
 				diesel = s.Find(".data-cell:nth-child(3)").Text()
+				lpg = s.Find(".data-cell:nth-child(5)").Text()
 				//fmt.Println(petrol)
 				//fmt.Println(diesel)
 			})
 		}
 	}
-	return core.String{petrol}, core.String{diesel}
+	return core.String{petrol}, core.String{diesel}, core.String{lpg}
 }

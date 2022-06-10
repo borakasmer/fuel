@@ -69,12 +69,13 @@ func getFuel() {
 	resultList := make([]Model.FuelPrice, 0)
 
 	for key, url := range ExchangeList {
-		petrol, diesel := parser.ParseWeb(url)
+		petrol, diesel, lpg := parser.ParseWeb(url)
 
 		resultList = append(resultList,
 			Model.FuelPrice{City: key,
 				Diesel:      diesel.Slice(),
 				Petrol:      petrol.Slice(),
+				Lpg:         lpg.Slice(),
 				CurrentDate: time.Now().Format("2006.01.02 15:04:05"),
 			})
 	}
@@ -82,18 +83,23 @@ func getFuel() {
 	petrolRow = append(petrolRow, "Benzin =>")
 	diesel := make([]string, 0)
 	diesel = append(diesel, "Mazot =>")
+	lpg := make([]string, 0)
+	lpg = append(lpg, "Lpg =>")
 	for _, item := range resultList {
 		tableHeaders = append(tableHeaders, item.City)
 		petrolRow = append(petrolRow, item.Petrol+"₺")
 		diesel = append(diesel, item.Diesel+"₺")
+		lpg = append(lpg, item.Lpg+"₺")
 	}
 
 	tableHeaders = append(tableHeaders, "Tarih")
 	petrolRow = append(petrolRow, time.Now().Format("2006.01.02 15:04:05"))
 	diesel = append(diesel, time.Now().Format("2006.01.02 15:04:05"))
+	lpg = append(lpg, time.Now().Format("2006.01.02 15:04:05"))
 
 	tableRows = append(tableRows, petrolRow)
 	tableRows = append(tableRows, diesel)
+	tableRows = append(tableRows, lpg)
 
 	//Create Header of Table
 	table := tablewriter.NewWriter(os.Stdout)
