@@ -7,6 +7,7 @@ package cmd
 
 import (
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/borakasmer/fuel/Model"
@@ -15,6 +16,8 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+const _DATE_FORMAT_STRING = "2006.01.02 15:04:05"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -84,7 +87,7 @@ func getFuel() {
 				Diesel:      diesel.Slice(),
 				Petrol:      petrol.Slice(),
 				Lpg:         lpg.Slice(),
-				CurrentDate: time.Now().Format("2006.01.02 15:04:05"),
+				CurrentDate: time.Now().Format(_DATE_FORMAT_STRING),
 			})
 	}
 	petrolRow := make([]string, 0)
@@ -101,9 +104,9 @@ func getFuel() {
 	}
 
 	tableHeaders = append(tableHeaders, "Tarih")
-	petrolRow = append(petrolRow, time.Now().Format("2006.01.02 15:04:05"))
-	diesel = append(diesel, time.Now().Format("2006.01.02 15:04:05"))
-	lpg = append(lpg, time.Now().Format("2006.01.02 15:04:05"))
+	petrolRow = append(petrolRow, time.Now().Format(_DATE_FORMAT_STRING))
+	diesel = append(diesel, time.Now().Format(_DATE_FORMAT_STRING))
+	lpg = append(lpg, time.Now().Format(_DATE_FORMAT_STRING))
 
 	tableRows = append(tableRows, petrolRow)
 	tableRows = append(tableRows, diesel)
@@ -139,5 +142,5 @@ func getFuel() {
 }
 
 func isWindows() bool {
-	return os.PathSeparator == '\\' && os.PathListSeparator == ';'
+	return runtime.GOOS == "windows"
 }
