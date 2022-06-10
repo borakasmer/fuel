@@ -1,11 +1,12 @@
 package parser
 
 import (
-	"github.com/PuerkitoBio/goquery"
-	"github.com/borakasmer/fuel/core"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/borakasmer/fuel/core"
 )
 
 /*
