@@ -18,6 +18,13 @@ type City struct {
 	Url  string
 }
 
+// return a new city instance. also sets the url
+func NewCity(cityname string) *City {
+	c := &City{Name: cityname}
+	c.GenerateURL()
+	return c
+}
+
 var trCharsToEnChars = map[string]string{
 	"ç": "c", "ğ": "g", "ı": "i", "ö": "o", "ş": "s", "ü": "u",
 }

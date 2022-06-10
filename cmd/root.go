@@ -63,12 +63,9 @@ func init() {
 
 func getFuel() {
 	var cities = cities{
-		"istanbul": &model.City{Name: "İstanbul"},
-		"angara":   &model.City{Name: "Ankara"},
-		"izmir":    &model.City{Name: "İzmir"},
-	}
-	for _, c := range cities {
-		c.GenerateURL()
+		"istanbul": model.NewCity("İstanbul"),
+		"angara":   model.NewCity("Ankara"),
+		"izmir":    model.NewCity("İzmir"),
 	}
 	tableHeaders := make([]string, 0)
 	tableRows := make([][]string, 0)
