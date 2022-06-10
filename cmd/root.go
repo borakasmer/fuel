@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/borakasmer/fuel/Model"
+	"github.com/borakasmer/fuel/model"
 	"github.com/borakasmer/fuel/parser"
 	"github.com/olekukonko/tablewriter"
 
@@ -18,6 +18,8 @@ import (
 )
 
 const _DATE_FORMAT_STRING = "2006.01.02 15:04:05"
+
+type cities = map[string]*model.City
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -60,23 +62,30 @@ func init() {
 }
 
 func getFuel() {
+	var cities = cities{
+		"istanbul": &model.City{Name: "İstanbul"},
+		"angara":   &model.City{Name: "Ankara"},
+		"izmir":    &model.City{Name: "İzmir"},
+	}
+	for _, c := range cities {
+		c.GenerateURL()
+	}
 	tableHeaders := make([]string, 0)
 	tableRows := make([][]string, 0)
 
 	tableHeaders = append(tableHeaders, "Yakıt Tipi")
 
 	var ExchangeList = make(map[string]string, 3)
-	ExchangeList["Istanbul"] = parser.IstanbulUrl
-	ExchangeList["Angara"] = parser.AnkaraUrl
-	ExchangeList["Izmir"] = parser.IzmirUrl
+	ExchangeList["Istanbul"] = cities["istanbul"].Url
+	ExchangeList["Angara"] = cities["angara"].Url
+	ExchangeList["Izmir"] = cities["izmir"].Url
 
-	resultList := make([]Model.FuelPrice, 0)
+	resultList := make([]model.FuelPrice, 0)
 
 	for key, url := range ExchangeList {
 		petrol, diesel, lpg := parser.ParseWeb(url)
-
 		resultList = append(resultList,
-			Model.FuelPrice{City: key,
+			model.FuelPrice{City: key,
 				Diesel:      diesel.Slice(),
 				Petrol:      petrol.Slice(),
 				Lpg:         lpg.Slice(),
