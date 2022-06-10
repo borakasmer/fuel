@@ -6,11 +6,12 @@ Copyright © 2022 Bora Kasmer <bora@borakasmer.com>
 package cmd
 
 import (
+	"os"
+	"time"
+
 	"github.com/borakasmer/fuel/Model"
 	"github.com/borakasmer/fuel/parser"
 	"github.com/olekukonko/tablewriter"
-	"os"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -55,24 +56,31 @@ func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
+type fuel struct {
+	city string
+	url  string
+}
+
 func getFuel() {
 	tableHeaders := make([]string, 0)
 	tableRows := make([][]string, 0)
 
 	tableHeaders = append(tableHeaders, "Yakıt Tipi")
 
-	var ExchangeList = make(map[string]string, 3)
-	ExchangeList["Istanbul"] = parser.IstanbulUrl
-	ExchangeList["Angara"] = parser.AnkaraUrl
-	ExchangeList["Izmir"] = parser.IzmirUrl
+	ExchangeList := []fuel{
+		{city: "Ankara", url: parser.AnkaraUrl},
+		{city: "Istanbul", url: parser.IstanbulUrl},
+		{city: "Izmir", url: parser.IzmirUrl},
+	}
 
 	resultList := make([]Model.FuelPrice, 0)
 
-	for key, url := range ExchangeList {
-		petrol, diesel, lpg := parser.ParseWeb(url)
+	for _, c := range ExchangeList {
+		petrol, diesel, lpg := parser.ParseWeb(c.url)
 
 		resultList = append(resultList,
-			Model.FuelPrice{City: key,
+			Model.FuelPrice{
+				City:        c.city,
 				Diesel:      diesel.Slice(),
 				Petrol:      petrol.Slice(),
 				Lpg:         lpg.Slice(),
@@ -101,26 +109,31 @@ func getFuel() {
 	tableRows = append(tableRows, diesel)
 	tableRows = append(tableRows, lpg)
 
-	//Create Header of Table
+	// Create Header of Table
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader(tableHeaders)
 	//---------------------
 
 	table.SetCaption(true, "Petrol Ofisinde, Şehir Bazlı Yakıt Fiyatları\n ®coderbora => www.borakasmer.com")
 	table.AppendBulk(tableRows)
-	//Set Table Color
-	if !isWindows() { //Windows için Renkli Tablo başlıkları gözükmüyor...
+	// Set Table Color
+	if !isWindows() { // Windows için Renkli Tablo başlıkları gözükmüyor...
 
 		table.SetHeaderColor(tablewriter.Colors{
-			tablewriter.Bold, tablewriter.BgMagentaColor},
+			tablewriter.Bold, tablewriter.BgMagentaColor,
+		},
 			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgGreenColor},
+				tablewriter.Bold, tablewriter.BgGreenColor,
+			},
 			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgYellowColor},
+				tablewriter.Bold, tablewriter.BgYellowColor,
+			},
 			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgBlueColor},
+				tablewriter.Bold, tablewriter.BgBlueColor,
+			},
 			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgRedColor})
+				tablewriter.Bold, tablewriter.BgRedColor,
+			})
 	}
 	table.Render()
 }
