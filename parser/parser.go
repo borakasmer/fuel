@@ -34,9 +34,6 @@ The first selection contains the first and the last element.
 
 sel2 := doc.Find("li:nth-child(3), li:nth-child(7)")
 */
-var IstanbulUrl = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/istanbul-akaryakit-fiyatlari"
-var AnkaraUrl = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/ankara-akaryakit-fiyatlari"
-var IzmirUrl = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/izmir-akaryakit-fiyatlari"
 
 func ParseWeb(url string) (core.String, core.String, core.String) {
 	var petrol = ""
@@ -58,10 +55,8 @@ func ParseWeb(url string) (core.String, core.String, core.String) {
 				petrol = s.Find(".data-cell:nth-child(2)").Text()
 				diesel = s.Find(".data-cell:nth-child(3)").Text()
 				lpg = s.Find(".data-cell:nth-child(5)").Text()
-				//fmt.Println(petrol)
-				//fmt.Println(diesel)
 			})
 		}
 	}
-	return core.String{petrol}, core.String{diesel}, core.String{lpg}
+	return core.String{Value: petrol}, core.String{Value: diesel}, core.String{Value: lpg}
 }

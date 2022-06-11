@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/borakasmer/fuel/Model"
+	"github.com/borakasmer/fuel/models"
 	"github.com/borakasmer/fuel/parser"
 	"github.com/olekukonko/tablewriter"
 
@@ -65,24 +65,28 @@ type fuel struct {
 }
 
 func getFuel() {
+	istanbul := models.NewCity("İstanbul")
+	angara := models.NewCity("Ankara")
+	izmir := models.NewCity("İzmir")
+
 	tableHeaders := make([]string, 0)
 	tableRows := make([][]string, 0)
 
 	tableHeaders = append(tableHeaders, "Yakıt Tipi")
 
 	ExchangeList := []fuel{
-		{city: "Ankara", url: parser.AnkaraUrl},
-		{city: "Istanbul", url: parser.IstanbulUrl},
-		{city: "Izmir", url: parser.IzmirUrl},
+		{city: "Ankara", url: angara.Url},
+		{city: "Istanbul", url: istanbul.Url},
+		{city: "Izmir", url: izmir.Url},
 	}
 
-	resultList := make([]Model.FuelPrice, 0)
+	resultList := make([]models.FuelPrice, 0)
 
 	for _, c := range ExchangeList {
 		petrol, diesel, lpg := parser.ParseWeb(c.url)
 
 		resultList = append(resultList,
-			Model.FuelPrice{
+			models.FuelPrice{
 				City:        c.city,
 				Diesel:      diesel.Slice(),
 				Petrol:      petrol.Slice(),
