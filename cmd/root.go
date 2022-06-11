@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/borakasmer/fuel/Model"
 	"github.com/borakasmer/fuel/parser"
 	"github.com/olekukonko/tablewriter"
 
@@ -47,6 +46,8 @@ func Execute() {
 	}
 }
 
+var cityList []string
+
 func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
@@ -57,11 +58,7 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-type fuel struct {
-	city string
-	url  string
+	rootCmd.Flags().StringSliceVarP(&cityList, "city", "c", []string{"Ankara", "Istanbul", "Izmir"}, "City names seperated by comma")
 }
 
 func getFuel() {
@@ -70,47 +67,55 @@ func getFuel() {
 
 	tableHeaders = append(tableHeaders, "Yakıt Tipi")
 
-	ExchangeList := []fuel{
-		{city: "Ankara", url: parser.AnkaraUrl},
-		{city: "Istanbul", url: parser.IstanbulUrl},
-		{city: "Izmir", url: parser.IzmirUrl},
-	}
-
-	resultList := make([]Model.FuelPrice, 0)
-
-	for _, c := range ExchangeList {
-		petrol, diesel, lpg := parser.ParseWeb(c.url)
-
-		resultList = append(resultList,
-			Model.FuelPrice{
-				City:        c.city,
-				Diesel:      diesel.Slice(),
-				Petrol:      petrol.Slice(),
-				Lpg:         lpg.Slice(),
-				CurrentDate: time.Now().Format(_DATE_FORMAT_STRING),
-			})
-	}
 	petrolRow := make([]string, 0)
 	petrolRow = append(petrolRow, "Benzin =>")
-	diesel := make([]string, 0)
-	diesel = append(diesel, "Mazot =>")
-	lpg := make([]string, 0)
-	lpg = append(lpg, "Lpg =>")
-	for _, item := range resultList {
+	dieselRow := make([]string, 0)
+	dieselRow = append(dieselRow, "Mazot =>")
+	lpgRow := make([]string, 0)
+	lpgRow = append(lpgRow, "LPG =>")
+
+	// Repeating color pattern for table header
+	var colorsPattern = []tablewriter.Colors{{
+		tablewriter.Bold, tablewriter.BgGreenColor,
+	},
+		{
+			tablewriter.Bold, tablewriter.BgYellowColor,
+		},
+		{
+			tablewriter.Bold, tablewriter.BgBlueColor,
+		}}
+
+	colors := make([]tablewriter.Colors, 0)
+
+	// Yakıt Tipi cell's Color
+	colors = append(colors, tablewriter.Colors{
+		tablewriter.Bold, tablewriter.BgMagentaColor,
+	})
+
+	for i, c := range cityList {
+		item := parser.ParseWeb(c)
 		tableHeaders = append(tableHeaders, item.City)
 		petrolRow = append(petrolRow, item.Petrol+"₺")
-		diesel = append(diesel, item.Diesel+"₺")
-		lpg = append(lpg, item.Lpg+"₺")
+		dieselRow = append(dieselRow, item.Diesel+"₺")
+		lpgRow = append(lpgRow, item.Lpg+"₺")
+
+		color := colorsPattern[i%len(colorsPattern)]
+		colors = append(colors, color)
 	}
+
+	// Tarih cell's color
+	colors = append(colors, tablewriter.Colors{
+		tablewriter.Bold, tablewriter.BgRedColor,
+	})
 
 	tableHeaders = append(tableHeaders, "Tarih")
 	petrolRow = append(petrolRow, time.Now().Format(_DATE_FORMAT_STRING))
-	diesel = append(diesel, time.Now().Format(_DATE_FORMAT_STRING))
-	lpg = append(lpg, time.Now().Format(_DATE_FORMAT_STRING))
+	dieselRow = append(dieselRow, time.Now().Format(_DATE_FORMAT_STRING))
+	lpgRow = append(lpgRow, time.Now().Format(_DATE_FORMAT_STRING))
 
 	tableRows = append(tableRows, petrolRow)
-	tableRows = append(tableRows, diesel)
-	tableRows = append(tableRows, lpg)
+	tableRows = append(tableRows, dieselRow)
+	tableRows = append(tableRows, lpgRow)
 
 	// Create Header of Table
 	table := tablewriter.NewWriter(os.Stdout)
@@ -121,22 +126,7 @@ func getFuel() {
 	table.AppendBulk(tableRows)
 	// Set Table Color
 	if !isWindows() { // Windows için Renkli Tablo başlıkları gözükmüyor...
-
-		table.SetHeaderColor(tablewriter.Colors{
-			tablewriter.Bold, tablewriter.BgMagentaColor,
-		},
-			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgGreenColor,
-			},
-			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgYellowColor,
-			},
-			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgBlueColor,
-			},
-			tablewriter.Colors{
-				tablewriter.Bold, tablewriter.BgRedColor,
-			})
+		table.SetHeaderColor(colors...)
 	}
 	table.Render()
 }

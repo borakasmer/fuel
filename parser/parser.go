@@ -1,67 +1,55 @@
 package parser
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
-	"github.com/borakasmer/fuel/core"
+	"github.com/borakasmer/fuel/Model"
 )
 
-/*
-doc, err := goquery.NewDocumentFromReader(strings.NewReader(data))
+const _DATE_FORMAT_STRING = "2006.01.02 15:04:05"
 
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    var words []string
-
-    sel1 := doc.Find("li:first-child, li:last-child")
-    sel2 := doc.Find("li:nth-child(3), li:nth-child(7)")
-
-    sel1.Union(sel2).Each(func(_ int, sel *goquery.Selection) {
-        words = append(words, sel.Text())
-    })
-
-    fmt.Println(words)
+type response struct {
+	K95   string
+	Mot50 string
+	PoGaz string
 }
-The example combines two selections.
 
-sel1 := doc.Find("li:first-child, li:last-child")
-The first selection contains the first and the last element.
+func ParseWeb(cityName string) Model.FuelPrice {
+	// JSON Keys for Renaming
+	// K95 -> Benzin
+	// Mot50 -> Mazot
+	// PoGaz -> LPG
 
-sel2 := doc.Find("li:nth-child(3), li:nth-child(7)")
-*/
-var IstanbulUrl = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/istanbul-akaryakit-fiyatlari"
-var AnkaraUrl = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/ankara-akaryakit-fiyatlari"
-var IzmirUrl = "https://www.petrolofisi.com.tr/akaryakit-fiyatlari/izmir-akaryakit-fiyatlari"
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
 
-func ParseWeb(url string) (core.String, core.String, core.String) {
-	var petrol = ""
-	var diesel = ""
-	var lpg = ""
-	client := &http.Client{Timeout: 30 * time.Second}
-	res, err := client.Get(url)
+	res, err := client.Get("https://www.petrolofisi.com.tr/posvc/fiyat/guncel?il=" + cityName + "&ilce=" + cityName)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	var fuelPricesSlice []response
 	defer res.Body.Close()
+
 	if res.StatusCode == 200 {
-		doc, err := goquery.NewDocumentFromReader(res.Body)
+		decoder := json.NewDecoder(res.Body)
+		err := decoder.Decode(&fuelPricesSlice)
 		if err != nil {
-			log.Fatal(err)
-		} else {
-			data := doc.Find("#fuelPricesTableDesktop tbody tr:nth-child(1)")
-			data.Each(func(i int, s *goquery.Selection) {
-				petrol = s.Find(".data-cell:nth-child(2)").Text()
-				diesel = s.Find(".data-cell:nth-child(3)").Text()
-				lpg = s.Find(".data-cell:nth-child(5)").Text()
-				//fmt.Println(petrol)
-				//fmt.Println(diesel)
-			})
+			log.Fatal("Error on parsing API response on City: ", cityName, "\n", err)
 		}
 	}
-	return core.String{petrol}, core.String{diesel}, core.String{lpg}
+
+	fuelPrices := fuelPricesSlice[0]
+
+	return Model.FuelPrice{
+		City:        cityName,
+		Diesel:      fuelPrices.Mot50,
+		Petrol:      fuelPrices.K95,
+		Lpg:         fuelPrices.PoGaz,
+		CurrentDate: time.Now().Format(_DATE_FORMAT_STRING),
+	}
 }
