@@ -19,6 +19,8 @@ import (
 
 const _DATE_FORMAT_STRING = "2006.01.02 15:04:05"
 
+var gasStation string
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "fuel",
@@ -34,7 +36,11 @@ Petrol Ofisi sitesi	üzerindeki fiyat listesi, anlık olarak Parse Edilerek ekra
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		getFuel()
+		if gasStation == "total" {
+			getFuelTotal()
+		} else {
+			getFuel()
+		}
 	},
 }
 
@@ -57,6 +63,7 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.Flags().StringVarP(&gasStation, "station", "s", "PO", "Select gas station (PO, total)")
 }
 
 type fuel struct {
@@ -118,6 +125,83 @@ func getFuel() {
 	//---------------------
 
 	table.SetCaption(true, "Petrol Ofisinde, Şehir Bazlı Yakıt Fiyatları\n ®coderbora => www.borakasmer.com")
+	table.AppendBulk(tableRows)
+	// Set Table Color
+	if !isWindows() { // Windows için Renkli Tablo başlıkları gözükmüyor...
+
+		table.SetHeaderColor(tablewriter.Colors{
+			tablewriter.Bold, tablewriter.BgMagentaColor,
+		},
+			tablewriter.Colors{
+				tablewriter.Bold, tablewriter.BgGreenColor,
+			},
+			tablewriter.Colors{
+				tablewriter.Bold, tablewriter.BgYellowColor,
+			},
+			tablewriter.Colors{
+				tablewriter.Bold, tablewriter.BgBlueColor,
+			},
+			tablewriter.Colors{
+				tablewriter.Bold, tablewriter.BgRedColor,
+			})
+	}
+	table.Render()
+}
+
+func getFuelTotal() {
+	tableHeaders := make([]string, 0)
+	tableRows := make([][]string, 0)
+
+	tableHeaders = append(tableHeaders, "Yakıt Tipi")
+
+	ExchangeList := []fuel{
+		{city: "Ankara", url: parser.TotalAnkaraURL},
+		{city: "Istanbul", url: parser.TotalIstanbulURL},
+		{city: "Izmir", url: parser.TotalIzmirURL},
+	}
+
+	resultList := make([]Model.FuelPrice, 0)
+
+	for _, c := range ExchangeList {
+		petrol, diesel, lpg := parser.ParseWebTotal(c.url)
+
+		resultList = append(resultList,
+			Model.FuelPrice{
+				City:        c.city,
+				Diesel:      diesel.Slice(),
+				Petrol:      petrol.Slice(),
+				Lpg:         lpg.Slice(),
+				CurrentDate: time.Now().Format(_DATE_FORMAT_STRING),
+			})
+	}
+	petrolRow := make([]string, 0)
+	petrolRow = append(petrolRow, "Benzin =>")
+	diesel := make([]string, 0)
+	diesel = append(diesel, "Mazot =>")
+	lpg := make([]string, 0)
+	lpg = append(lpg, "Lpg =>")
+	for _, item := range resultList {
+		tableHeaders = append(tableHeaders, item.City)
+		petrolRow = append(petrolRow, item.Petrol+"₺")
+		diesel = append(diesel, item.Diesel+"₺")
+		lpg = append(lpg, item.Lpg+"₺")
+	}
+
+	tableHeaders = append(tableHeaders, "Tarih")
+	petrolRow = append(petrolRow, time.Now().Format(_DATE_FORMAT_STRING))
+	diesel = append(diesel, time.Now().Format(_DATE_FORMAT_STRING))
+	lpg = append(lpg, time.Now().Format(_DATE_FORMAT_STRING))
+
+	tableRows = append(tableRows, petrolRow)
+	tableRows = append(tableRows, diesel)
+	tableRows = append(tableRows, lpg)
+
+	// Create Header of Table
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader(tableHeaders)
+	//---------------------
+
+	table.SetCaption(true, "Total istasyonlarında, Şehir Bazlı Yakıt Fiyatları\n ®coderbora => www.borakasmer.com")
 	table.AppendBulk(tableRows)
 	// Set Table Color
 	if !isWindows() { // Windows için Renkli Tablo başlıkları gözükmüyor...
