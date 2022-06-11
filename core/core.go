@@ -9,9 +9,11 @@ type String struct {
 }
 
 func (str *String) Slice() string {
+	if len(str.Value) == 0 {
+		return ""
+	}
 	if strings.Index(str.Value, ".") != -1 {
 		return str.Value[0:5]
-	} else {
-		return str.Value[0:2]
 	}
+	return str.Value[0:2]
 }
