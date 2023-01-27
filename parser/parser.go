@@ -53,11 +53,11 @@ func ParseWeb(url string) (core.String, core.String, core.String) {
 		if err != nil {
 			log.Fatal(err)
 		} else {
-			data := doc.Find("#fuelPricesTableDesktop tbody tr:nth-child(1)")
+			data := doc.Find("div.fuel-items table tbody tr:nth-child(1)")
 			data.Each(func(i int, s *goquery.Selection) {
-				petrol = s.Find(".data-cell:nth-child(2)").Text()
-				diesel = s.Find(".data-cell:nth-child(3)").Text()
-				lpg = s.Find(".data-cell:nth-child(5)").Text()
+				petrol = s.Find("td:nth-child(2)").Text()
+				diesel = s.Find("td:nth-child(3)").Text()
+				lpg = s.Find("td:nth-child(5)").Text()
 				//fmt.Println(petrol)
 				//fmt.Println(diesel)
 			})
