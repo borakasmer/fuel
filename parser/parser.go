@@ -1,32 +1,32 @@
 package parser
 
 import (
+	"github.com/PuerkitoBio/goquery"
+	"github.com/borakasmer/fuel/core"
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/PuerkitoBio/goquery"
-	"github.com/borakasmer/fuel/core"
 )
 
 /*
 doc, err := goquery.NewDocumentFromReader(strings.NewReader(data))
 
-    if err != nil {
-        log.Fatal(err)
-    }
+	    if err != nil {
+	        log.Fatal(err)
+	    }
 
-    var words []string
+	    var words []string
 
-    sel1 := doc.Find("li:first-child, li:last-child")
-    sel2 := doc.Find("li:nth-child(3), li:nth-child(7)")
+	    sel1 := doc.Find("li:first-child, li:last-child")
+	    sel2 := doc.Find("li:nth-child(3), li:nth-child(7)")
 
-    sel1.Union(sel2).Each(func(_ int, sel *goquery.Selection) {
-        words = append(words, sel.Text())
-    })
+	    sel1.Union(sel2).Each(func(_ int, sel *goquery.Selection) {
+	        words = append(words, sel.Text())
+	    })
 
-    fmt.Println(words)
-}
+	    fmt.Println(words)
+	}
+
 The example combines two selections.
 
 sel1 := doc.Find("li:first-child, li:last-child")
@@ -53,11 +53,21 @@ func ParseWeb(url string) (core.String, core.String, core.String) {
 		if err != nil {
 			log.Fatal(err)
 		} else {
-			data := doc.Find("#fuelPricesTableDesktop tbody tr:nth-child(1)")
+			/*
+				data := doc.Find("#fuelPricesTableDesktop tbody tr:nth-child(1)")
+				data.Each(func(i int, s *goquery.Selection) {
+					petrol = s.Find(".data-cell:nth-child(2)").Text()
+					diesel = s.Find(".data-cell:nth-child(3)").Text()
+					lpg = s.Find(".data-cell:nth-child(5)").Text()
+					//fmt.Println(petrol)
+					//fmt.Println(diesel)
+				})*/
+			//Update parser, because of "www.petrolofisi.com.tr" web site is changed.
+			data := doc.Find(".table.table-prices.fw-semibold.mt-6 tbody tr:nth-child(1)")
 			data.Each(func(i int, s *goquery.Selection) {
-				petrol = s.Find(".data-cell:nth-child(2)").Text()
-				diesel = s.Find(".data-cell:nth-child(3)").Text()
-				lpg = s.Find(".data-cell:nth-child(5)").Text()
+				petrol = s.Find("td:nth-child(2)").Text()
+				diesel = s.Find("td:nth-child(3)").Text()
+				lpg = s.Find("td:nth-child(5)").Text()
 				//fmt.Println(petrol)
 				//fmt.Println(diesel)
 			})
